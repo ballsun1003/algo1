@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.Arrays;
 import java.util.Scanner;
 
 class Sort {
@@ -132,11 +133,11 @@ public class HW1 {
     public static void main(String[] args) {
         try {
             BufferedReader br;
+            Scanner sc = new Scanner(System.in);
             while(true) {
                 try {
                     // 파일 이름 입력
                     System.out.println("파일 이름 입력");
-                    Scanner sc = new Scanner(System.in);
                     String fileName = sc.nextLine();
                     br = new BufferedReader(new FileReader(fileName));
                     break;
@@ -162,6 +163,7 @@ public class HW1 {
             line = br.readLine();
             if (line == null) throw new Exception("좌표의 수 n이 포함된 줄이 없습니다.");
             int n = Integer.parseInt(line.trim());
+            boolean incorrectN = false; // n 예외처리용 변수
 
             // 거리 값을 저장할 배열 생성
             Comparable[] distances = new Comparable[n];
@@ -175,6 +177,7 @@ public class HW1 {
                 if (line == null) {
                     System.out.println("경고: 파일에 명시된 좌표 수보다 실제 좌표 수가 적습니다.");
                     n = i+1;
+                    incorrectN = true;
                     break;
                 }
 
@@ -182,6 +185,8 @@ public class HW1 {
                 if (coords.length < 2) {
                     System.out.println("경고: 좌표 데이터가 올바르지 않습니다, 해당 좌표는 건너뜁니다.");
                     n--;
+                    i--;
+                    incorrectN = true;
                     continue;
                 }
 
@@ -192,6 +197,11 @@ public class HW1 {
                 double distance = Math.sqrt(Math.pow(x - currentX, 2) + Math.pow(y - currentY, 2));
                 distances[i] = distance;
             }
+
+            if(incorrectN) {
+                distances = Arrays.copyOf(distances, n);
+            }
+
             br.close(); // 파일 닫기
 
             if(k == 0){
@@ -200,7 +210,7 @@ public class HW1 {
             }
 
             long startTime = System.currentTimeMillis();
-            if(k > 5 || k < 0) {
+            if(k > 5 || k == -1) {
                 EnhancedQuickSort quickSorter = new EnhancedQuickSort();
                 quickSorter.sort(distances, k);
             }
@@ -222,8 +232,14 @@ public class HW1 {
                 System.out.println("정렬여부: " + (sorted+1) + "번째 원소가 정렬되지 않음");
             }
 
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        }
+        catch (NumberFormatException e){
+            System.err.println("파일의 형식이 잘못되었습니다.");
+            System.err.println(e.getMessage());
+            e.printStackTrace();
+        }
+        catch (Exception e) {
+            System.err.println(e.getMessage());
             e.printStackTrace();
         }
     }
